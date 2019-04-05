@@ -1,0 +1,19 @@
+{
+  "name": "torrent-grabber",
+  "version": "1.0.0",
+  "description": "Simple torrent search engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lennartle/torrent-grabber.git"
+  },
+  "author": "Lennart Le",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lennartle/torrent-grabber/issues"
+  },
+  "homepage": "https://github.com/lennartle/torrent-grabber#readme"
+}
