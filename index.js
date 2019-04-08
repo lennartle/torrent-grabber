@@ -1,1 +1,3 @@
-module.exports = require("./src/TorrentEngine");
+const TorrentEngine = require("./src/TorrentEngine");
+
+module.exports = new TorrentEngine();

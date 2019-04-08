@@ -68,8 +68,8 @@ module.exports = class TorrentEngine {
     });
   }
 
-  async search(query) {
-    let requests = [];
+  async search(query, opts = {}) {
+    const requests = [];
 
     for (const [key, torrent] of this.torrents) {
       if (torrent.active) {
@@ -77,11 +77,31 @@ module.exports = class TorrentEngine {
       }
     }
 
-    const results = await Promise.all(requests);
+    let results = await Promise.all(requests);
 
-    return results
-      .reduce((acc, val) => acc.concat(val))
-      .sort((a, b) => a.seeds - b.seeds)
-      .reverse();
+    if (opts.groupByTracker) {
+      const trackerMap = new Map();
+
+      results.forEach(arr => {
+        trackerMap.set(arr[0].tracker, arr);
+      });
+
+      results = trackerMap;
+    } else {
+      results = results
+        .reduce((acc, val) => acc.concat(val))
+        .sort((a, b) => a.seeds - b.seeds)
+        .reverse();
+    }
+
+    return results;
+  }
+
+  async getMagnet(item) {
+    const tracker = this.torrents.get(item.tracker);
+
+    const result = await tracker.getMagnet(item.trackerId);
+
+    return result;
   }
 };

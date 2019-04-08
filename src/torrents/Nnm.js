@@ -41,6 +41,17 @@ module.exports = class Nnm {
     return convertedItems;
   }
 
+  async getMagnet(torrentId) {
+    const resp = await needle(
+      "get",
+      `${this.BASE_LINK}/forum/viewtopic.php?t=${torrentId}`
+    );
+
+    const page = new DOMParser().parseFromString(resp.body, "text/html");
+
+    return page.querySelector("td.gensmall > a").href;
+  }
+
   async activate() {
     if (!this.checked) {
       const resp = await needle("get", `${this.BASE_LINK}/forum/tracker.php`);
@@ -53,6 +64,6 @@ module.exports = class Nnm {
       this.active = true;
     }
 
-    return;
+    return this.name;
   }
 };

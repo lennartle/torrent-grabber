@@ -27,19 +27,21 @@ module.exports = class ThePirateBay {
         size = size.split(" ")[2].replace("MiB", "MB");
         size = size.replace("GiB", "GB");
 
-        let path = item.querySelector("td:nth-child(2) > div > a");
-
         return {
           tracker: this.name,
           title: item.querySelector(".detLink").innerText,
           size: size,
           seeds: item.querySelector("td:nth-child(3)").textContent,
-          trackerId: path.pathname.split("/")[2]
+          trackerId: item.querySelector("td:nth-child(2) > a:nth-child(2)").href
         };
       } catch (error) {}
     });
 
     return convertedItems.filter(i => !!i);
+  }
+
+  async getMagnet(torrentId) {
+    return torrentId;
   }
 
   async activate() {
@@ -54,6 +56,6 @@ module.exports = class ThePirateBay {
       this.active = true;
     }
 
-    return;
+    return this.name;
   }
 };

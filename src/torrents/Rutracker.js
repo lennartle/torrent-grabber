@@ -58,6 +58,27 @@ module.exports = class Rutracker {
     return convertedItems;
   }
 
+  async getMagnet(torrentId) {
+    const options = {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": 0,
+        Cookie: this.cookie
+      }
+    };
+
+    const resp = await needle(
+      "post",
+      `${this.BASE_LINK}/forum/viewtopic.php?t=${torrentId}`,
+      {},
+      options
+    );
+
+    const page = new DOMParser().parseFromString(resp.body, "text/html");
+
+    return page.querySelector(".magnet-link-16").href;
+  }
+
   async activate(login, pass) {
     if (!this.checked) {
       if (!login || !pass) {
@@ -88,10 +109,13 @@ module.exports = class Rutracker {
         this.cookie = resp.headers["set-cookie"][1];
         this.active = true;
         this.checked = true;
+      } else {
+        throw new Error("Wrong credentials!");
       }
     } else {
       this.active = true;
     }
-    return;
+
+    return this.name;
   }
 };
