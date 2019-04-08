@@ -1,7 +1,7 @@
 const { readdirSync } = require("fs");
 const path = require("path");
 
-class TorrentEngine {
+module.exports = class TorrentEngine {
   constructor() {
     this.torrents = new Map();
 
@@ -18,7 +18,9 @@ class TorrentEngine {
     });
   }
 
-  selectTorrents(...torrents) {
+  activate(...torrents) {
+    const promises = [];
+
     torrents.forEach(torrent => {
       let name, login, pass;
 
@@ -32,13 +34,54 @@ class TorrentEngine {
 
       const torrentObj = this.torrents.get(name);
 
+      if (!torrentObj) {
+        throw new Error(`Torrent ${name} not found.`);
+      }
+
       if (!torrentObj.active) {
-        torrentObj.activate(login, pass);
+        promises.push(torrentObj.activate(login, pass));
+      }
+    });
+
+    return Promise.all(promises);
+  }
+
+  deactivate(...torrents) {
+    torrents.forEach(torrent => {
+      let name;
+
+      if (torrent instanceof Array) {
+        name = torrent[0];
+      } else {
+        name = torrent;
+      }
+
+      const torrentObj = this.torrents.get(name);
+
+      if (!torrentObj) {
+        throw new Error(`Torrent ${name} not found.`);
+      }
+
+      if (torrentObj.active) {
+        torrentObj.active = false;
       }
     });
   }
 
-  search(query) {}
-}
+  async search(query) {
+    let requests = [];
 
-module.exports = TorrentEngine;
+    for (const [key, torrent] of this.torrents) {
+      if (torrent.active) {
+        requests.push(torrent.search(query));
+      }
+    }
+
+    const results = await Promise.all(requests);
+
+    return results
+      .reduce((acc, val) => acc.concat(val))
+      .sort((a, b) => a.seeds - b.seeds)
+      .reverse();
+  }
+};
