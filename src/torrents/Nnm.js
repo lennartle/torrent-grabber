@@ -19,7 +19,7 @@ module.exports = class Nnm {
     });
 
     const resp = await needle(
-      "get",
+      "post",
       `${this.BASE_LINK}/forum/tracker.php`,
       postData
     );
