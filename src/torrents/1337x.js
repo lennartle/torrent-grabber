@@ -1,4 +1,5 @@
 const needle = require("needle");
+const xray = require("../utils/xray");
 
 module.exports = class _1337x {
   constructor() {
@@ -11,34 +12,31 @@ module.exports = class _1337x {
   }
 
   async search(query) {
+    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const resp = await needle(
       "get",
       `${this.BASE_LINK}/sort-search/${query}/seeders/desc/1/`
     );
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
 
-    const items = [...page.querySelectorAll("tbody > tr")];
-    const convertedItems = items.map(item => {
-      return {
-        tracker: this.name,
-        title: item.querySelector(".name > a:nth-child(2)").textContent,
-        size: item.querySelector(".size").childNodes[0].textContent,
-        seeds: item.querySelector(".seeds").textContent,
-        trackerId: item.querySelector(".name > a:nth-child(2)").attributes[
-          "href"
-        ].value
-      };
-    });
+    const items = await xray(resp.body, "tbody > tr", [
+      {
+        title: "a:nth-child(2)@text",
+        size: ".size@text | match: '(.+)<' | fixSize",
+        seeds: ".seeds@text | int",
+        trackerId: "a:nth-child(2)@href"
+      }
+    ]);
 
-    return convertedItems;
+    return items;
   }
 
   async getMagnet(torrentId) {
     const resp = await needle("get", `${this.BASE_LINK}${torrentId}`);
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
-
-    return page.querySelector(".fbebafbe").href;
+    return await xray(
+      resp.body,
+      "ul.download-links-dontblock > li:nth-child(1) > a@href"
+    );
   }
 
   async activate() {

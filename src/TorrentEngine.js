@@ -73,7 +73,13 @@ module.exports = class TorrentEngine {
 
     for (const [key, torrent] of this.torrents) {
       if (torrent.active) {
-        requests.push(torrent.search(query));
+        requests.push(
+          torrent.search(query).then(i =>
+            i.map(i => {
+              return { tracker: torrent.name, ...i };
+            })
+          )
+        );
       }
     }
 
@@ -100,8 +106,6 @@ module.exports = class TorrentEngine {
   async getMagnet(item) {
     const tracker = this.torrents.get(item.tracker);
 
-    const result = await tracker.getMagnet(item.trackerId);
-
-    return result;
+    return await tracker.getMagnet(item.trackerId);
   }
 };

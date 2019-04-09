@@ -1,4 +1,5 @@
 const needle = require("needle");
+const xray = require("../utils/xray");
 
 module.exports = class ThePirateBay {
   constructor() {
@@ -11,33 +12,22 @@ module.exports = class ThePirateBay {
   }
 
   async search(query) {
+    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const resp = await needle(
       "get",
       `${this.BASE_LINK}/search/${query}/0/99/0`
     );
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
+    const items = await xray(resp.body, "#searchResult tr", [
+      {
+        title: "a.detLink@text",
+        size: '.detDesc@text | match: "Size.(.+?)," | fixSize',
+        seeds: "td:nth-child(3)@text | int",
+        trackerId: "td:nth-child(2) > a:nth-child(2)@href"
+      }
+    ]);
 
-    const items = [...page.querySelectorAll("#searchResult > tbody > tr")];
-
-    const convertedItems = items.map(item => {
-      try {
-        let size = item.querySelector(".detDesc").innerText.split(",")[1];
-
-        size = size.split(" ")[2].replace("MiB", "MB");
-        size = size.replace("GiB", "GB");
-
-        return {
-          tracker: this.name,
-          title: item.querySelector(".detLink").innerText,
-          size: size,
-          seeds: item.querySelector("td:nth-child(3)").textContent,
-          trackerId: item.querySelector("td:nth-child(2) > a:nth-child(2)").href
-        };
-      } catch (error) {}
-    });
-
-    return convertedItems.filter(i => !!i);
+    return items;
   }
 
   async getMagnet(torrentId) {

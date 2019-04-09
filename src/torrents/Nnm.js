@@ -1,5 +1,5 @@
 const needle = require("needle");
-const fs = require("filesize");
+const xray = require("../utils/xray");
 
 module.exports = class Nnm {
   constructor() {
@@ -12,6 +12,7 @@ module.exports = class Nnm {
   }
 
   async search(query) {
+    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const postData = require("querystring").stringify({
       nm: query,
       f: "-1",
@@ -24,32 +25,25 @@ module.exports = class Nnm {
       postData
     );
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
+    const items = await xray(resp.body, ".tablesorter > tbody > tr", [
+      {
+        title: ".genmed > a > b@text",
+        size: "td:nth-child(6) > u@text | int",
+        seeds: ".seedmed > b@text | int",
+        trackerId: ".genmed > a@href"
+      }
+    ]);
 
-    const items = [...page.querySelectorAll(".tablesorter > tbody > tr")];
-
-    const convertedItems = items.map(item => {
-      return {
-        tracker: this.name,
-        title: item.querySelector(".genmed > a > b").textContent,
-        size: fs(item.querySelector("td:nth-child(6) > u").textContent),
-        seeds: item.querySelector(".seedmed > b").textContent,
-        trackerId: item.querySelector(".genmed > a").href.split("=")[1]
-      };
-    });
-
-    return convertedItems;
+    return items;
   }
 
   async getMagnet(torrentId) {
     const resp = await needle(
       "get",
-      `${this.BASE_LINK}/forum/viewtopic.php?t=${torrentId}`
+      `${this.BASE_LINK}/forum/${torrentId}`
     );
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
-
-    return page.querySelector("td.gensmall > a").href;
+    return await xray(resp.body, "td.gensmall > a@href");
   }
 
   async activate() {

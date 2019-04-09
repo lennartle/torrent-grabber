@@ -1,5 +1,5 @@
 const needle = require("needle");
-const fs = require("filesize");
+const xray = require("../utils/xray");
 
 module.exports = class Rutracker {
   constructor() {
@@ -13,6 +13,7 @@ module.exports = class Rutracker {
   }
 
   async search(query) {
+    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const postData = require("querystring").stringify({
       nm: query,
       f: "-1",
@@ -34,28 +35,16 @@ module.exports = class Rutracker {
       options
     );
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
+    const items = await xray(resp.body, "#tor-tbl > tbody > tr", [
+      {
+        title: ".t-title > a@text",
+        size: ".tor-size > u@text | int",
+        seeds: "td:nth-child(7) > u@text | int",
+        trackerId: ".t-title > a@href"
+      }
+    ]);
 
-    const items = [...page.querySelectorAll("#tor-tbl > tbody > tr")];
-
-    const filteredItems = items.filter(item => {
-      return (
-        item.querySelector("td:nth-child(7) > :nth-child(2)").title.length !==
-          12 && item.querySelector("td:nth-child(2)").title.length !== 7
-      );
-    });
-
-    const convertedItems = filteredItems.map(item => {
-      return {
-        tracker: this.name,
-        title: item.querySelector(".t-title > a").textContent,
-        size: fs(item.querySelector(".tor-size > u").textContent),
-        seeds: item.querySelector("td:nth-child(7) > u").textContent,
-        trackerId: item.querySelector(".t-title > a").dataset.topic_id
-      };
-    });
-
-    return convertedItems;
+    return items;
   }
 
   async getMagnet(torrentId) {
@@ -69,14 +58,12 @@ module.exports = class Rutracker {
 
     const resp = await needle(
       "post",
-      `${this.BASE_LINK}/forum/viewtopic.php?t=${torrentId}`,
+      `${this.BASE_LINK}/forum/${torrentId}`,
       {},
       options
     );
 
-    const page = new DOMParser().parseFromString(resp.body, "text/html");
-
-    return page.querySelector(".magnet-link-16").href;
+    return await xray(resp.body, ".magnet-link-16@href");
   }
 
   async activate(login, pass) {
