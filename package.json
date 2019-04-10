@@ -1,6 +1,6 @@
 {
   "name": "torrent-grabber",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple torrent search engine",
   "main": "index.js",
   "scripts": {
