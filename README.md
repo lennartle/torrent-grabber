@@ -56,6 +56,20 @@ Promise.all(
     groupByTracker: false
   }).then(items => console.log(items));
 });
+
+//or async/await
+
+(async () => {
+  await Promise.all(trackersToUse.map(tracker => tg.activate(tracker)));
+
+  const searchResult = await tg.search("the greatest showman", {
+    groupByTracker: false
+  });
+  console.log(searchResult);
+
+  const magnetURI = await tg.getMagnet(searchResult[20]);
+  console.log(magnetURI);
+})();
 ```
 
 ## API
