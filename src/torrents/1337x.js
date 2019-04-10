@@ -12,10 +12,9 @@ module.exports = class _1337x {
   }
 
   async search(query) {
-    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const resp = await needle(
       "get",
-      `${this.BASE_LINK}/sort-search/${query}/seeders/desc/1/`
+      `${this.BASE_LINK}/sort-search/${encodeURI(query)}/seeders/desc/1/`
     );
 
     const items = await xray(resp.body, "tbody > tr", [
@@ -40,17 +39,10 @@ module.exports = class _1337x {
   }
 
   async activate() {
-    if (!this.checked) {
-      const resp = await needle("get", `${this.BASE_LINK}`);
+    const resp = await needle("get", `${this.BASE_LINK}`);
 
-      if (resp.statusCode == 200) {
-        this.active = true;
-        this.checked = true;
-      }
-    } else {
-      this.active = true;
+    if (resp.statusCode !== 200) {
+      throw new Error();
     }
-
-    return this.name;
   }
 };

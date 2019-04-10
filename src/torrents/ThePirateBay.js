@@ -12,10 +12,9 @@ module.exports = class ThePirateBay {
   }
 
   async search(query) {
-    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const resp = await needle(
       "get",
-      `${this.BASE_LINK}/search/${query}/0/99/0`
+      `${this.BASE_LINK}/search/${encodeURI(query)}/0/99/0`
     );
 
     const items = await xray(resp.body, "#searchResult tr", [
@@ -35,17 +34,10 @@ module.exports = class ThePirateBay {
   }
 
   async activate() {
-    if (!this.checked) {
-      const resp = await needle("get", this.BASE_LINK);
+    const resp = await needle("get", this.BASE_LINK);
 
-      if (resp.statusCode == 200) {
-        this.active = true;
-        this.checked = true;
-      }
-    } else {
-      this.active = true;
+    if (resp.statusCode !== 200) {
+      throw new Error();
     }
-
-    return this.name;
   }
 };

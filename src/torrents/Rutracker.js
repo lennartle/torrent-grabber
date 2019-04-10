@@ -13,7 +13,6 @@ module.exports = class Rutracker {
   }
 
   async search(query) {
-    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const postData = require("querystring").stringify({
       nm: query,
       f: "-1",
@@ -67,42 +66,34 @@ module.exports = class Rutracker {
   }
 
   async activate(login, pass) {
-    if (!this.checked) {
-      if (!login || !pass) {
-        throw new Error("Requieres login credentials!");
-      }
-
-      const postData = require("querystring").stringify({
-        login_username: login,
-        login_password: pass,
-        login: "Вход"
-      });
-
-      const options = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Content-Length": postData.length
-        }
-      };
-
-      const resp = await needle(
-        "post",
-        `${this.BASE_LINK}/forum/login.php`,
-        postData,
-        options
-      );
-
-      if (resp.statusCode.toString() === "302") {
-        this.cookie = resp.headers["set-cookie"][1];
-        this.active = true;
-        this.checked = true;
-      } else {
-        throw new Error("Wrong credentials!");
-      }
-    } else {
-      this.active = true;
+    if (!login || !pass) {
+      throw new Error("Requieres login credentials!");
     }
 
-    return this.name;
+    const postData = require("querystring").stringify({
+      login_username: login,
+      login_password: pass,
+      login: "Вход"
+    });
+
+    const options = {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": postData.length
+      }
+    };
+
+    const resp = await needle(
+      "post",
+      `${this.BASE_LINK}/forum/login.php`,
+      postData,
+      options
+    );
+
+    if (resp.statusCode.toString() === "302") {
+      this.cookie = resp.headers["set-cookie"][1];
+    } else {
+      throw new Error("Wrong credentials!");
+    }
   }
 };

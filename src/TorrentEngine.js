@@ -39,7 +39,18 @@ module.exports = class TorrentEngine {
       }
 
       if (!torrentObj.active) {
-        promises.push(torrentObj.activate(login, pass));
+        if (!torrentObj.checked) {
+          promises.push(
+            torrentObj.activate(login, pass).then(() => {
+              torrentObj.active = true;
+              torrentObj.checked = true;
+
+              return torrentObj.name;
+            })
+          );
+        } else {
+          torrentObj.active = true;
+        }
       }
     });
 

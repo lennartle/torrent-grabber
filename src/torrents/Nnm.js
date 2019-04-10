@@ -12,7 +12,6 @@ module.exports = class Nnm {
   }
 
   async search(query) {
-    console.log(`${this.BASE_LINK}/search/${query}/0/99/0`)
     const postData = require("querystring").stringify({
       nm: query,
       f: "-1",
@@ -21,11 +20,10 @@ module.exports = class Nnm {
 
     const resp = await needle(
       "post",
-      `${this.BASE_LINK}/forum/tracker.php`,
-      postData
+      `${this.BASE_LINK}/forum/tracker.php?${postData}`
     );
 
-    const items = await xray(resp.body, ".tablesorter > tbody > tr", [
+    const items = await xray(resp.body, ".tablesorter tr", [
       {
         title: ".genmed > a > b@text",
         size: "td:nth-child(6) > u@text | int",
@@ -38,26 +36,16 @@ module.exports = class Nnm {
   }
 
   async getMagnet(torrentId) {
-    const resp = await needle(
-      "get",
-      `${this.BASE_LINK}/forum/${torrentId}`
-    );
+    const resp = await needle("get", `${this.BASE_LINK}/forum/${torrentId}`);
 
     return await xray(resp.body, "td.gensmall > a@href");
   }
 
   async activate() {
-    if (!this.checked) {
-      const resp = await needle("get", `${this.BASE_LINK}/forum/tracker.php`);
+    const resp = await needle("get", `${this.BASE_LINK}/forum/tracker.php`);
 
-      if (resp.statusCode == 200) {
-        this.active = true;
-        this.checked = true;
-      }
-    } else {
-      this.active = true;
+    if (resp.statusCode !== 200) {
+      throw new Error();
     }
-
-    return this.name;
   }
 };

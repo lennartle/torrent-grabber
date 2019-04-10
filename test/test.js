@@ -14,7 +14,7 @@ Promise.all(
     });
   })
 ).then(() => {
-  tg.search("vikings", {
+  tg.search("the greatest showman", {
     groupByTracker: false
   }).then(items => {
     console.log(`Found ${items.length} items!`);
