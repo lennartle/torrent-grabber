@@ -4,25 +4,25 @@ Fast torrent search module for nodejs
 
 ---
 
-### List of available trackers
+## List of available trackers
 
 - 1337x
 - ThePirateBay
 - Nnm
 - Rutracker
 
-### Installation
+## Installation
 
 ```shell
 $ npm i torrent-grabber
 ```
 
-### Usage Single
+## Example Single
 
 Activation needs only once, for checking tracker availability and login
 
 ```js
-import tg from "torrent-grabber";
+const tg = require("torrent-grabber");
 
 tg.activate("ThePirateBay").then(name => {
   console.log(`${name} is ready!`);
@@ -33,10 +33,10 @@ tg.activate("ThePirateBay").then(name => {
 });
 ```
 
-### Usage Multiple
+## Example Multiple
 
 ```js
-import tg from "torrent-grabber";
+const tg = require("torrent-grabber");
 
 const trackersToUse = [
   "1337x",
@@ -58,10 +58,44 @@ Promise.all(
 });
 ```
 
-### Authors
+## API
+
+### Activating tracker
+
+```js
+tg.activate(trackerName).then(name => {
+  console.log(`${name} is ready!`);
+});
+
+//or
+
+tg.activate([trackerName, { login: "login", pass: "pass" }]).then(name => {
+  console.log(`${name} is ready!`);
+});
+```
+
+### Disabling tracker
+
+```js
+tg.disable(trackerName);
+```
+
+### Searching
+
+```js
+tg.search(query, { groupByTracker: false }).then(items => console.log(items));
+```
+
+### Get magnetURI
+
+```js
+tg.getMagnet(torrentItem).then(magnet => console.log(magnet));
+```
+
+## Authors
 
 - Lennart Le
 
-### License
+## License
 
-This project is licensed under the MIT License
+MIT License
