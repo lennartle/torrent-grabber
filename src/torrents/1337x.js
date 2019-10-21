@@ -34,7 +34,7 @@ module.exports = class _1337x {
 
     return await xray(
       resp.body,
-      "ul.download-links-dontblock > li:nth-child(1) > a@href"
+      "ul.le7754eb94e34e66aea80b0c2c55bfaa0a2f9906d > li:nth-child(1) > a@href"
     );
   }
 

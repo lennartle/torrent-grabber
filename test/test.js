@@ -4,7 +4,7 @@ const trackersToUse = [
   "1337x",
   "ThePirateBay",
   "Nnm",
-  ["Rutracker", { login: "LennartLence", pass: "f20o5r7g10e15t6" }]
+  // ["Rutracker", { login: "LennartLence", pass: "f20o5r7g10e15t6" }]
 ];
 
 // Promise.all(
@@ -30,6 +30,6 @@ const trackersToUse = [
   });
   console.log(searchResult);
 
-  const magnetURI = await tg.getMagnet(searchResult[20]);
+  const magnetURI = await tg.getMagnet(searchResult[1]);
   console.log(magnetURI);
 })();
