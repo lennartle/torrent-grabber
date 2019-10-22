@@ -93,7 +93,7 @@ module.exports = class Rutracker {
     if (resp.statusCode.toString() === "302") {
       this.cookie = resp.headers["set-cookie"][1];
     } else {
-      throw new Error("Wrong credentials!");
+      throw new Error(resp.statusMessage);
     }
   }
 };

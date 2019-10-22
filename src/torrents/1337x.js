@@ -31,11 +31,11 @@ module.exports = class _1337x {
 
   async getMagnet(torrentId) {
     const resp = await needle("get", `${this.BASE_LINK}${torrentId}`);
+    const div = await xray(resp.body, "div.clearfix", [
+      "div > ul > li > a@href"
+    ]);
 
-    return await xray(
-      resp.body,
-      "ul.le7754eb94e34e66aea80b0c2c55bfaa0a2f9906d > li:nth-child(1) > a@href"
-    );
+    return div[0];
   }
 
   async activate() {

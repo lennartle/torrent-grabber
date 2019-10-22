@@ -29,7 +29,7 @@
   "homepage": "https://github.com/lennartle/torrent-grabber#readme",
   "dependencies": {
     "filesize": "^4.1.2",
-    "needle": "^2.2.4",
+    "needle": "^2.4.0",
     "x-ray": "^2.3.3"
   }
 }
